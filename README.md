@@ -307,7 +307,7 @@ Header
 
 Query
 
-**filter**: Specify which blocks area searched. If not set all blocks will be returned.
+**filter**: Specify which blocks are searched. If not set all blocks will be returned.
 
 **sort**: Specify the sorting method for the returned blocks. If not set default sorting will be applied.
 
@@ -345,6 +345,28 @@ Response
         }
     }
 ]
+```
+
+##### DELETE /blocks
+
+Delete all blocks that match with the given filter
+
+Header
+| KEY | VALUE |
+| :---: | :---: |
+| Content-Type | application/json |
+| x-access-token | <generated-token> |
+
+Query
+
+**filter**: Specify which blocks are deleted. If not set all blocks will be deleted!
+
+Examples
+```
+/blocks
+/blocks?filter={"x": { "$gt": 10 } }
+/blocks?filter={"x": { "$gte" : -10, "$lte" : 10 }, "y": 0, "z": { "$gte" : -10, "$lte" : 10 } }
+/blocks?filter={ "info.name": "minecraft:rock" }
 ```
 
 ##### GET /path
