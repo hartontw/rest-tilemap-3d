@@ -2,10 +2,7 @@ import Block from '../models/Block'
 import Vector from '../lib/Vector'
 
 function exists(blocks, block) {
-    if (!blocks[block.x]) return false
-    if (!blocks[block.x][block.y]) return false
-    if (!blocks[block.x][block.y][block.z]) return false
-    return true
+    return blocks[block.x] && blocks[block.x][block.y] && blocks[block.x][block.y][block.z]
 }
 
 function addToNodes(nodes, node) {
@@ -36,7 +33,7 @@ function getLower(openList) {
     let l = openList.length-1
     let lower = openList[l]
 
-    for (let i = openList.length-2; i > 0; i--) {
+    for (let i = openList.length-2; i >= 0; i--) {
         const node = openList[i]
         const nf = node.f()
         const lf = lower.f()
@@ -81,18 +78,13 @@ function generateAdjacent(blocks, destination, nodes, openList, parent) {
     check(parent.x, parent.y, parent.z+1)
 }
 
-function buildPath(blocks, parent) {
+function buildPath(parent) {
     const reversePath = []
     while (parent) {
-        reversePath.push(parent)
+        reversePath.push(parent.position())
         parent = parent.parent
     }
-
-    const path = []
-    for (let i=reversePath.length-1; i>=0; i--) {
-        path.push(reversePath[i].position())
-    }
-    return path
+    return reversePath.reverse()
 }
 
 function ServerError(res, error) {
@@ -100,38 +92,63 @@ function ServerError(res, error) {
     return res.status(500).json('Something went wrong')
 }
 
+function parse(value) {
+    try {
+        return {
+            content: JSON.parse(value)
+        }
+    }
+    catch(e){
+        return {
+            error:true,
+            message:e.message
+        }
+    }
+}
+
+function check(value) {    
+    const parsed = parse(value)
+    if (parsed.error) {
+        let decoded = decodeURIComponent(value)
+        console.log(decoded)
+        if (decoded !== value) {
+            return parse(decoded)
+        }
+    }
+    return parsed
+}
+
 export default async (req, res) => {
-    const filter = {}
-    let start, destination, space
+    let {filter, start, destination, space} = req.body
 
-    let header
-    try { 
-        if (req.query.start) {
-            header = "start"
-            start = JSON.parse(req.query.start)
-        }
-        else res.status(400).json("Start position is required")
+    if (Object.keys(req.body).length === 0) {
+        let c
 
-        if (req.query.destination) {
-            header = "destination"
-            destination = JSON.parse(req.query.destination)
-        }
-        else res.status(400).json("Destination position is required")
+        if (!req.query.start) return res.status(400).json("Start position is required")
+        c = check(req.query.start)
+        if (c.error) return res.status(400).json(`start: ${c.message}`)
+        start = c.content
+
+        if (!req.query.start) return res.status(400).json("Destination position is required")
+        c = check(req.query.destination)
+        if (c.error) return res.status(400).json(`destination: ${c.message}`)
+        destination = c.content
 
         if (req.query.filter) {
-            header = "filter"
-            filter = JSON.parse(req.query.filter)
+            c = check(req.query.filter)
+            if (c.error) return res.status(400).json(`filter: ${c.message}`)
+            filter = c.content
         }
 
         if (req.query.space) {
-            header = "space"
-            space = JSON.parse(req.query.space)
+            c = check(req.query.space)
+            if (c.error) return res.status(400).json(`space: ${c.message}`)
+            space = c.content
         }
-        else space = 0
-    }
-    catch(error) {
-        return res.status(400).json(`${header}: ${error.message}`)
-    }
+    }    
+
+    if (!filter) filter = {}
+    if (!space) space = 0
 
     try {
         start = new Vector(start.x, start.y, start.z)
@@ -173,7 +190,9 @@ export default async (req, res) => {
             parent = nextParent
         }
 
-        const path = buildPath(blocks, parent)
+        const path = buildPath(parent)
+
+        console.log(path)
     
         return res.status(200).json(path)
     }
