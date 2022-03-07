@@ -110,7 +110,6 @@ function check(value) {
     const parsed = parse(value)
     if (parsed.error) {
         let decoded = decodeURIComponent(value)
-        console.log(decoded)
         if (decoded !== value) {
             return parse(decoded)
         }
@@ -192,8 +191,6 @@ export default async (req, res) => {
 
         const path = buildPath(parent)
 
-        console.log(path)
-    
         return res.status(200).json(path)
     }
     catch(error) {
