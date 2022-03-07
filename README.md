@@ -8,6 +8,7 @@ REST API to store tilemap info and calculate paths
 git clone https://<url>
 cd rest-tilemap-3d
 npm install
+npm run build
 ```
 
 ### Configuration
@@ -33,8 +34,23 @@ ENCRYPTED=true
 
 CLI
 ```bash
-npm run build
 npm start
+```
+
+PM2 ```ecosystem.config.js```
+```js
+module.exports = {
+    apps: [
+        {
+            name: "rest-tilemap-3d",
+            script: "~/rest-tilemap-3d/build/server.js",
+            env: {
+                PORT: 3000,
+                PASSWORD: "<secure_password>"
+            }
+        }
+    ]
+};
 ```
 
 ### Usage
