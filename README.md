@@ -292,8 +292,11 @@ Header
 Query
 
 **filter**: Specify which blocks area searched. If not set all blocks will be returned.
+
 **sort**: Specify the sorting method for the returned blocks. If not set default sorting will be applied.
+
 **select**: Specify which fields will be displayed. If not set all fields are displayed.
+
 **limit**: Specify the amount of blocks returned. If not set all filtered blocks will be returned.
 
 Examples
@@ -341,8 +344,11 @@ Header
 Query
 
 **filter**: Specify which blocks are considered obstacles. If not set all blocks in the area will be considered.
+
 **start**: Specify the start position.
+
 **destination**: Specify the destination point.
+
 **space**: Specify how much blocks around the area are considered. If not set is 0.
 
 Examples
