@@ -130,7 +130,7 @@ Response
 
 ##### PUT /block
 
-Update a block if exists or create it if not.
+Create a block if not exists. If exists and date is later update it or delete if info is not given.
 
 Header
 | KEY | VALUE |
@@ -355,7 +355,22 @@ Examples
 ```
 /path?start={"x":0, "y": 0, "z": 0}&destination={"x": 3, "y": 0, "z": 0}
 /path?filter={"info.name": {"$not" : "minecraft:dirt"} }&start={"x":0, "y": 0, "z": 0}&destination={"x": 3, "y": 0, "z": 0}&space=20
+/path?start={"x":0, "y": 0, "z": 0}&destination={"x": 3, "y": 0, "z": 0}&space={"x":10, "y": 0, "z": 10}
+/path?start=%7B%22x%22%3A0%2C%20%22y%22%3A0%2C%20%22z%22%3A0%7D&destination=%7B%22x%22%3A10%2C%20%22y%22%3A0%2C%20%22z%22%3A0%7D
 ```
+
+Another way to send the request is using body instead:
+
+Body
+```json
+{
+    "filter": { "info.name": {"$not" : "minecraft:dirt"} },
+    "start": {"x":0, "y": 0, "z": 0},
+    "destination": {"x": 3, "y": 0, "z": 0},
+    "space": 20
+}
+```
+
 Response
 ```json
 [
