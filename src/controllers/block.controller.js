@@ -21,7 +21,7 @@ export const post = async (req, res) => {
         if (await Block.exists({x,y,z})) return res.status(400).json("Already exists")
 
         const info = req.body.info
-        const date = req.body.date ? new Date(req.body.date) : new Date()
+        const date = new Date(req.body.date)
 
         let block = new Block({x, y, z, updated: date, info})
         block = await block.save()
@@ -52,14 +52,15 @@ export const put = async (req, res) => {
     try {
         const {x, y, z} = req.body;
         if (wrongCoords(x, y, z)) return res.status(400).json("Coordinates are required")
-        if (!req.body.date) return res.status(400).json("Date is required") 
-        if (!req.body.info) return res.status(400).json("Info is required")              
+        if (!req.body.date) return res.status(400).json("Date is required")             
         
         const info = req.body.info
-        const date = req.body.date ? new Date(req.body.date) : new Date()
+        const date = new Date(req.body.date)
 
         let block = await Block.findOne({x,y,z})
         if (!block) {
+            if (!info) return res.status(304).json(block)
+            
             block = new Block({x, y, z, updated: date, info})
             block = await block.save()
             return res.status(201).json(block)
@@ -67,6 +68,11 @@ export const put = async (req, res) => {
 
         if (date < block.updated) return res.status(304).json(block)
 
+        if (!info) {
+            await Block.deleteOne({x, y, z})
+            return res.status(200).json()
+        }
+            
         block.overwrite({x, y, z, updated: date, info})
         block = await block.save()
         return res.status(200).json(block)
@@ -88,7 +94,7 @@ export const patch = async (req, res) => {
         if (!block) return res.status(404).json("Not found")
 
         const info = req.body.info
-        const date = req.body.date ? new Date(req.body.date) : new Date()
+        const date = new Date(req.body.date)
 
         block.overwrite({x, y, z, updated: date, info})
         block = await block.save()
